@@ -1,0 +1,656 @@
+{
+  "New Website Pages": [
+    [
+      "Category",
+      "Topic",
+      "Completeness",
+      "Phase 1",
+      "Type of feature",
+      "Old",
+      "Effort",
+      "Questions/Comments",
+      "Requirement"
+    ],
+    [
+      "Student Facing",
+      "Home Page- Search Bar",
+      "0.7",
+      "Yes",
+      "Page",
+      "Homepage",
+      "Medium",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Career Journey Map",
+      "0.7",
+      "Yes",
+      "Page",
+      "NA",
+      "High",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Deep Profiling",
+      "0.9",
+      "Yes",
+      "Page",
+      "Student Profile",
+      "Small",
+      "",
+      "Provide profile details"
+    ],
+    [
+      "",
+      "Journey Payment Page",
+      "0.9",
+      "Yes",
+      "Page",
+      "Signup",
+      "Small",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Student Dashboard - Overview",
+      "0.5",
+      "Yes",
+      "Page",
+      "Overview",
+      "Medium",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Student Dashboard - My Journey",
+      "0.5",
+      "Yes",
+      "Page",
+      "NA",
+      "High",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Student Dashboard - Career Journey Report",
+      "0.5",
+      "Yes",
+      "Page",
+      "NA",
+      "High",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Student Dashboard - Course List Page",
+      "0.5",
+      "Yes",
+      "Page",
+      "NA",
+      "Medium",
+      "",
+      "Provide 2 Courses per Service"
+    ],
+    [
+      "",
+      "Student Dashboard - Resources Overview",
+      "0.5",
+      "Yes",
+      "Page",
+      "NA",
+      "Medium",
+      "",
+      "Provide 2 Resources"
+    ],
+    [
+      "",
+      "Student Dashboard - Resources Details",
+      "0.5",
+      "Yes",
+      "Page",
+      "NA",
+      "Medium",
+      "",
+      "Provide Resource Detail template"
+    ],
+    [
+      "",
+      "Student Dashboard - Notifications Page",
+      "0.5",
+      "Yes",
+      "Page",
+      "Notifications",
+      "High",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Student Dashboard - Career Asset",
+      "0.0",
+      "Yes / No",
+      "Page",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Service Status Page",
+      "0.0",
+      "No",
+      "Page",
+      "NA",
+      "Medium",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Course Detail Page",
+      "0.0",
+      "Yes",
+      "Page",
+      "Course Detail",
+      "Medium",
+      "",
+      "Provide Course Details template"
+    ],
+    [
+      "",
+      "Course Entollment Page",
+      "0.0",
+      "Yes",
+      "Page",
+      "Cart",
+      "Medium",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Course Payment Page",
+      "0.9",
+      "Yes",
+      "Page",
+      "Payment",
+      "Small",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Payment Integration",
+      "0.0",
+      "Yes",
+      "Integration",
+      "Payment Integration",
+      "High",
+      "",
+      "Provide payment integration details"
+    ],
+    [
+      "",
+      "Caontact Us",
+      "0.0",
+      "Yes",
+      "Page",
+      "Caontact Us",
+      "Small",
+      "",
+      ""
+    ],
+    [
+      "",
+      "About Merrakii",
+      "0.0",
+      "Yes",
+      "Page",
+      "About Merrakii",
+      "Small",
+      "",
+      "Provide About Content"
+    ],
+    [
+      "",
+      "Terms & Conditions",
+      "0.0",
+      "Yes",
+      "Page",
+      "Terms & Conditions",
+      "Small",
+      "",
+      "Provide page content"
+    ],
+    [
+      "",
+      "Privacy Policy",
+      "0.0",
+      "Yes",
+      "Page",
+      "Privacy Policy",
+      "Small",
+      "",
+      "Provide page content"
+    ],
+    [
+      "",
+      "Refund Policy",
+      "0.0",
+      "Yes",
+      "Page",
+      "Refund Policy",
+      "Small",
+      "",
+      "Provide page content"
+    ],
+    [
+      "",
+      "FAQs",
+      "0.0",
+      "Yes",
+      "Page",
+      "FAQs",
+      "Small",
+      "",
+      "Provide page content"
+    ],
+    [
+      "Admin Panel",
+      "Career Library CMS Overview (Career= Profession + Course + College + Exam)",
+      "",
+      "Yes",
+      "Page",
+      "Course Library Overview",
+      "Medium",
+      "This will give the overview of all the Careers existing in the system",
+      ""
+    ],
+    [
+      "",
+      "Add Career Page per category per stream",
+      "",
+      "Yes",
+      "Page",
+      "Add Course",
+      "High",
+      "This will let Admin perform CRUD(Create, Read, Update, Delete) operations on each Career.",
+      ""
+    ],
+    [
+      "",
+      "User Management - Overview",
+      "",
+      "Yes",
+      "Page",
+      "NA",
+      "Medium",
+      "Students accounts only",
+      ""
+    ],
+    [
+      "",
+      "User Management - Add Student",
+      "",
+      "Yes",
+      "Page",
+      "NA",
+      "High",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Service Knowledge Page Overview",
+      "",
+      "Yes",
+      "Page",
+      "NA",
+      "Small",
+      "This will give the overview of all the Services existing in the system",
+      ""
+    ],
+    [
+      "",
+      "Add Service Knowledge",
+      "",
+      "Yes",
+      "Page",
+      "Na",
+      "Medium",
+      "This will let Admin perform CRUD(Create, Read, Update, Delete) operations on each Service.",
+      ""
+    ],
+    [
+      "",
+      "Exam Overview",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Discuss on Metadata",
+      ""
+    ],
+    [
+      "",
+      "Exam Add",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "",
+      "College Overview",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Discuss on Metadata",
+      ""
+    ],
+    [
+      "",
+      "College Add",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Courses Overview page",
+      "",
+      "Yes",
+      "Page",
+      "Course Library Overview",
+      "Medium",
+      "This will give the overview of all the Courses existing in the system",
+      ""
+    ],
+    [
+      "",
+      "Add Courses per career per service",
+      "",
+      "Yes",
+      "Page",
+      "Add Course",
+      "High",
+      "This will let Admin perform CRUD(Create, Read, Update, Delete) operations on each Course.",
+      ""
+    ],
+    [
+      "",
+      "Counsellor Overview",
+      "",
+      "No",
+      "Page",
+      "NA",
+      "Medium",
+      "This will give the overview of all the Counsellor profiles in the system",
+      ""
+    ],
+    [
+      "",
+      "Add Counsellor",
+      "",
+      "No",
+      "Page",
+      "NA",
+      "High",
+      "This will let Admin perform CRUD(Create, Read, Update, Delete) operations on each Counsellor profile.",
+      ""
+    ],
+    [
+      "",
+      "Resources Overview",
+      "",
+      "Yes",
+      "Page",
+      "NA",
+      "Medium",
+      "This will give the overview of all the Resources in the system",
+      ""
+    ],
+    [
+      "",
+      "Add Resources",
+      "",
+      "Yes",
+      "Page",
+      "NA",
+      "High",
+      "This will let Admin perform CRUD(Create, Read, Update, Delete) operations on each Resource.",
+      ""
+    ],
+    [
+      "",
+      "Financials overview",
+      "",
+      "Yes",
+      "Page",
+      "NA",
+      "High",
+      "Showcase financial summary per student",
+      ""
+    ],
+    [
+      "",
+      "Add Financials",
+      "",
+      "No",
+      "Page",
+      "NA",
+      "High",
+      "Add Financial Transactions not happening in the system like Partner Commission",
+      ""
+    ],
+    [
+      "Backend",
+      "Access & security",
+      "",
+      "Yes",
+      "Backend",
+      "Access & security",
+      "High",
+      "Server-side controls that decide who can sign in, what each role can see, and how student and parent data stays protected across the platform.",
+      ""
+    ],
+    [
+      "",
+      "Search & personalisation",
+      "",
+      "Yes",
+      "Backend",
+      "Search & personalisation",
+      "High",
+      "Backend logic that turns a student’s search or intake details into the right career journeys, filters, and personalised pathway recommendations.",
+      ""
+    ],
+    [
+      "",
+      "Integrations",
+      "",
+      "Yes",
+      "Backend",
+      "Integrations",
+      "High",
+      "Connections to external systems like Razorpay, email, linkedin, instagram, and whatsapp, including webhooks, credentials, and sync handling.",
+      ""
+    ],
+    [
+      "",
+      "Responsiveness",
+      "",
+      "Yes",
+      "Backend",
+      "Responsiveness",
+      "High",
+      "Ensures the UI layout, navigation, and content adapt cleanly across screen sizes — from mobile phones to desktop — so every page remains usable without a separate app or design.",
+      ""
+    ],
+    [
+      "",
+      "Data & architecture",
+      "",
+      "Yes",
+      "Backend",
+      "Data & architecture",
+      "High",
+      "The database design, API structure, and shared data models that hold journeys, services, users, and decisions together reliably as the product grows.",
+      ""
+    ],
+    [
+      "",
+      "Business logic / workflows",
+      "",
+      "Yes",
+      "Backend",
+      "Business logic / workflows",
+      "High",
+      "The rules engines behind enrolment tiers, service status, counsellor sessions, decision logging, payments, and journey validation — not the screens that display them.",
+      ""
+    ],
+    [
+      "",
+      "DevOps & reliability",
+      "",
+      "Yes",
+      "Backend",
+      "DevOps & reliability",
+      "High",
+      "How the app is deployed, monitored, and kept running on AWS — staging/production setup, CI/CD, health checks, backups, and uptime targets.",
+      ""
+    ],
+    [
+      "",
+      "Compliance & quality (non-UI)",
+      "",
+      "Yes",
+      "Backend",
+      "Compliance & quality (non-UI)",
+      "High",
+      "Validation, audit trails, error handling, and security standards that keep the platform safe and trustworthy without changing what users see on screen.",
+      ""
+    ]
+  ],
+  "Previous Website Pages": [
+    [
+      "Page category",
+      "Page route",
+      "Purpose"
+    ],
+    [
+      "Marketing / entry",
+      "/homepage",
+      "Main landing page for Study Abroad and Study in India."
+    ],
+    [
+      "Discovery / catalogue",
+      "/catalog",
+      "Browse the full catalogue of programmes from contracted institutes."
+    ],
+    [
+      "Discovery / catalogue",
+      "/institutes/[id]",
+      "Institute profile with programmes, details, and enrolment options."
+    ],
+    [
+      "Discovery / catalogue",
+      "/course",
+      "Course/programme detail page for enrolment decisions."
+    ],
+    [
+      "Application / payment",
+      "/apply/[programId]",
+      "Structured application form for a selected programme."
+    ],
+    [
+      "Application / payment",
+      "/cart",
+      "Hold selected courses before checkout/enrolment."
+    ],
+    [
+      "Application / payment",
+      "/payment/[applicationId]",
+      "Pay for a specific application (including UPI/payment options)."
+    ],
+    [
+      "Application / payment",
+      "/payment/checkout",
+      "Final checkout step to complete fee payment."
+    ],
+    [
+      "Application / payment",
+      "/payment/success",
+      "Confirmation screen after successful payment/enrolment."
+    ],
+    [
+      "Student account / auth",
+      "/login",
+      "Student/guardian sign-in (phone OTP)."
+    ],
+    [
+      "Student account / auth",
+      "/account",
+      "Personal account to view applications and enrolment status."
+    ],
+    [
+      "Contact Us",
+      "/contactus",
+      "Contact Us"
+    ],
+    [
+      "Staff admin",
+      "/dashboard",
+      "Staff console home for catalogue and operations."
+    ],
+    [
+      "Staff admin",
+      "/dashboard/login",
+      "Admin sign-in to manage institutes, courses, and catalogue."
+    ],
+    [
+      "Staff admin",
+      "/dashboard/homepage",
+      "Admin control for homepage/content configuration."
+    ],
+    [
+      "Staff admin",
+      "/dashboard/addvendor",
+      "Add a new contracted vendor/institute to the catalogue."
+    ],
+    [
+      "Staff admin",
+      "/dashboard/editvendor",
+      "Edit an existing vendor/institute record."
+    ],
+    [
+      "Staff admin",
+      "/dashboard/courses",
+      "Manage the list of programmes/courses in the catalogue."
+    ],
+    [
+      "Staff admin",
+      "/dashboard/course-detail",
+      "Create or edit a single course’s catalogue details."
+    ]
+  ]
+}

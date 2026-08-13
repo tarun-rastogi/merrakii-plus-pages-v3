@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maple AI Updates — Merrakii+ · 5 August 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cyan: #00b4d8;
+      --blue: #4361ee;
+      --purple: #7c3aed;
+      --navy: #1c2340;
+      --gray: #888fa8;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --paper: #ffffff;
+      --soft: #f8fafc;
+      --green: #059669;
+      --amber: #d97706;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      font-size: 15px;
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+
+    body {
+      margin: 0;
+      font-family: "DM Sans", system-ui, sans-serif;
+      color: var(--navy);
+      background: linear-gradient(165deg, #f0f9fc 0%, #f1f5f9 45%, #eef2ff 100%);
+      line-height: 1.5;
+      overflow-x: hidden;
+      max-width: 100%;
+    }
+
+    .wrap-screen {
+      padding: 24px 16px 48px;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    .toolbar {
+      width: 100%;
+      max-width: 1440px;
+      margin: 0 auto 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-print {
+      font: 600 14px inherit;
+      padding: 12px 22px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--purple) 100%);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(67, 97, 238, 0.35);
+    }
+
+    .btn-print:hover { filter: brightness(1.06); }
+
+    .doc {
+      width: 100%;
+      max-width: 1440px;
+      margin: 0 auto;
+      background: var(--paper);
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(28, 35, 64, 0.08);
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .doc-header {
+      padding: 36px 40px 28px;
+      background:
+        radial-gradient(ellipse 80% 120% at 100% 0%, rgba(0, 180, 216, 0.12), transparent 55%),
+        radial-gradient(ellipse 60% 100% at 0% 100%, rgba(124, 58, 237, 0.1), transparent 50%),
+        linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .brand-row img.maple {
+      height: 52px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .brand-row img.merrakii {
+      height: 40px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .label-chip {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--blue);
+      background: rgba(67, 97, 238, 0.1);
+      padding: 6px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    .doc-header h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.75rem, 3.5vw, 2.35rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--navy);
+      line-height: 1.2;
+    }
+
+    .doc-header .subtitle {
+      margin: 0;
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 36em;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px 20px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    .meta-item dt {
+      margin: 0;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray);
+    }
+
+    .meta-item dd {
+      margin: 4px 0 0;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .doc-body { padding: 32px 40px 48px; }
+
+    .flow-box {
+      background: linear-gradient(135deg, rgba(67, 97, 238, 0.06), rgba(0, 180, 216, 0.08));
+      border: 1px solid rgba(67, 97, 238, 0.18);
+      border-radius: 12px;
+      padding: 20px 22px;
+      margin-bottom: 36px;
+    }
+
+    .flow-box h2 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .flow-box p { margin: 0 0 12px; color: var(--muted); font-size: 0.95rem; }
+
+    .flow-steps {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .flow-steps span.step {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
+
+    .flow-steps span.arrow {
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .flow-note {
+      margin: 14px 0 0;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .toc {
+      margin-bottom: 36px;
+    }
+
+    .toc h2 {
+      margin: 0 0 12px;
+      font-size: 1.1rem;
+    }
+
+    .toc ol {
+      margin: 0;
+      padding-left: 1.25rem;
+      color: var(--muted);
+    }
+
+    .toc a {
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .toc a:hover { text-decoration: underline; }
+
+    .day {
+      margin-bottom: 40px;
+      scroll-margin-top: 24px;
+    }
+
+    .day-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 10px 16px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--navy);
+    }
+
+    .day-header h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      letter-spacing: -0.02em;
+    }
+
+    .day-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #fff;
+      background: var(--navy);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section h3 {
+      margin: 0 0 8px;
+      font-size: 1.02rem;
+      color: var(--blue);
+    }
+
+    .section p.lead {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    ul.changes {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    ul.changes li {
+      position: relative;
+      padding: 10px 12px 10px 36px;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.95rem;
+    }
+
+    ul.changes li:last-child { border-bottom: none; }
+
+    ul.changes li::before {
+      content: "";
+      position: absolute;
+      left: 12px;
+      top: 16px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+    }
+
+    ul.changes li strong {
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .tag-new { background: rgba(5, 150, 105, 0.12); color: var(--green); }
+    .tag-change { background: rgba(67, 97, 238, 0.12); color: var(--blue); }
+    .tag-remove { background: rgba(217, 119, 6, 0.14); color: var(--amber); }
+
+    .summary {
+      background: var(--soft);
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      padding: 22px 24px;
+      margin-top: 8px;
+    }
+
+    .summary h2 {
+      margin: 0 0 12px;
+      font-size: 1.15rem;
+    }
+
+    .summary ol {
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+
+    .summary li { margin-bottom: 8px; }
+
+    .doc-footer {
+      padding: 20px 40px 28px;
+      border-top: 1px solid var(--line);
+      font-size: 0.85rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .doc-footer strong { color: var(--navy); }
+
+    @media print {
+      body { background: #fff; }
+      .toolbar { display: none; }
+      .wrap-screen { padding: 0; }
+      .doc {
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+      }
+      .day { break-inside: avoid; }
+    }
+
+    /* Fit inside narrower dashboard iframe / panel widths */
+    @media (max-width: 1200px) {
+      .wrap-screen { padding: 12px 8px 24px; }
+      .doc-header,
+      .doc-body,
+      .doc-footer {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+      .doc-header { padding-top: 24px; padding-bottom: 20px; }
+      .doc-body { padding-top: 20px; padding-bottom: 28px; }
+    }
+
+    @media (max-width: 640px) {
+      .doc-header, .doc-body, .doc-footer { padding-left: 16px; padding-right: 16px; }
+      .doc-header { padding-top: 20px; }
+      .brand-row img.maple { height: 40px; }
+      .brand-row img.merrakii { height: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap-screen">
+    <div class="toolbar">
+      <button type="button" class="btn-print" onclick="window.print()">Print / Save PDF</button>
+    </div>
+
+    <article class="doc">
+      <header class="doc-header">
+        <div class="brand-row">
+          <img class="maple" src="images/maple-ai-logo.jpg" alt="Maple AI Technologies" />
+          <img class="merrakii" src="images/merrakii-logo.png" alt="Merrakii" />
+        </div>
+        <span class="label-chip">Maple AI Updates</span>
+        <h1>Merrakii+ — User-facing changes</h1>
+        <p class="subtitle">
+          Everything a student or parent will see on screen on the Merrakii+ website,
+          shipped Monday 3 August through Wednesday 5 August 2026.
+        </p>
+        <dl class="meta-grid">
+          <div class="meta-item">
+            <dt>Document date</dt>
+            <dd>Wednesday, 5 August 2026</dd>
+          </div>
+          <div class="meta-item">
+            <dt>Period covered</dt>
+            <dd>Mon 3 – Wed 5 Aug 2026</dd>
+          </div>
+          <div class="meta-item">
+            <dt>Product</dt>
+            <dd>Merrakii+</dd>
+          </div>
+          <div class="meta-item">
+            <dt>Prepared by</dt>
+            <dd>Maple AI Technologies</dd>
+          </div>
+        </dl>
+      </header>
+
+      <div class="doc-body">
+        <section class="flow-box" aria-label="Updated student journey flow">
+          <h2>Updated journey flow (what students experience now)</h2>
+          <p>
+            Search no longer jumps straight into the animated career map.
+            Profile collection comes first; the animation and payment follow after.
+          </p>
+          <div class="flow-steps">
+            <span class="step">1. Homepage search / Explore</span>
+            <span class="arrow">→</span>
+            <span class="step">2. Deep profile (short form + mobile OTP)</span>
+            <span class="arrow">→</span>
+            <span class="step">3. Animated career journey</span>
+            <span class="arrow">→</span>
+            <span class="step">4. Begin your journey → Payment</span>
+            <span class="arrow">→</span>
+            <span class="step">5. Fresh class-based journey path</span>
+          </div>
+          <p class="flow-note">
+            Earlier flow: Homepage → Journey map. That redirect has been replaced by Homepage → Profile collection.
+          </p>
+        </section>
+
+        <nav class="toc" aria-label="Contents">
+          <h2>Contents</h2>
+          <ol>
+            <li><a href="#monday">Monday, 3 August — Homepage banner, logo, payment</a></li>
+            <li><a href="#tuesday">Tuesday, 4 August — Redirect, profile, animation</a></li>
+            <li><a href="#wednesday">Wednesday, 5 August — OTP, arrows, class journey</a></li>
+            <li><a href="#highlights">At-a-glance highlights</a></li>
+          </ol>
+        </nav>
+
+        <!-- MONDAY -->
+        <section class="day" id="monday">
+          <div class="day-header">
+            <span class="day-badge">Day 1</span>
+            <h2>Monday, 3 August 2026</h2>
+          </div>
+
+          <div class="section">
+            <h3>Homepage</h3>
+            <ul class="changes">
+              <li>
+                <span class="tag tag-new">New</span>
+                <strong>Career professionals banner</strong> —
+                A multi-professional image strip was added above the black strip on the homepage
+                (professionals across careers).
+              </li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <h3>Site-wide logo</h3>
+            <ul class="changes">
+              <li>
+                <span class="tag tag-new">New</span>
+                <strong>Merrakii logo everywhere</strong> —
+                The same logo from the homepage now appears on all non-animation pages, and also at the
+                top of the animation page.
+              </li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <h3>Plans &amp; payment</h3>
+            <ul class="changes">
+              <li>
+                <span class="tag tag-change">Updated</span>
+                <strong>Three fixed journey plans</strong> —
+                The plans screen now shows only Starter (₹99), Growth (₹499), and Premium (₹999),
+                each with a Continue button. The old “Choose a subscription / per month” panel was removed.
+              </li>
+              <li>
+                <span class="tag tag-remove">Removed</span>
+                <strong>Fewer fields on checkout</strong> —
+                Full name, mobile, and later email were removed from the journey payment page so checkout
+                feels lighter.
+              </li>
+              <li>
+                <span class="tag tag-new">New</span>
+                <strong>Payment method tiles with real icons</strong> —
+                Checkout shows branded tiles for UPI, cards, wallets, net banking, and related methods,
+                styled to match the Merrakii+ theme.
+              </li>
+              <li>
+                <span class="tag tag-new">New</span>
+                <strong>UPI Generate QR flow</strong> —
+                Selecting UPI shows a Generate QR experience. A 30-second timer runs above the QR.
+                At 18 seconds a success popup appears: “Congratulations, payment successful!” with a
+                <strong>View Journey</strong> button. When the timer ends, the QR returns to the
+                generate state. Extra UPI app shortcut buttons (GPay / PhonePe / Paytm, etc.) were removed
+                from this panel.
+              </li>
+              <li>
+                <span class="tag tag-new">New</span>
+                <strong>Card OTP screen</strong> —
+                After card details and Start Free Trial, the student is taken to a card OTP confirmation page.
+                Card expiry input auto-formats as MM/YY.
+              </li>
+              <li>
+                <span class="tag tag-new">New</span>
+                <strong>Net banking bank screen</strong> —
+                Choosing a bank and starting the trial opens a dedicated net-banking confirmation-style page.
+              </li>
+              <li>
+                <span class="tag tag-remove">Removed</span>
+                <strong>“Verify it’s you” email OTP page deleted</strong> —
+                That intermediate email-OTP screen no longer appears in the flow.
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- TUESDAY -->
+        <section class="day" id="tuesday">
+          <div class="day-header">
+            <span class="day-badge">Day 2</span>
+            <h2>Tuesday, 4 August 2026</h2>
+          </div>
+
+          <div class="section">
+            <h3>Redirection &amp; entry path</h3>
+            <ul class="changes">
+              <li>
+                <span class="tag tag-change">Updated</span>
+                <strong>Homepage search → profile first</strong> —
+                When a student searches from the homepage, they are redirected to the
+                <strong>deep profiling (profile collection)</strong> page first, then to the
+                animated journey. Previously, search went straight to the journey / map.
+              </li>
+              <li>
+                <span class="tag tag-change">Updated</span>
+                <strong>Begin your journey → payment</strong> —
+                On the animation page, <strong>Begin your journey</strong> sends the student to the
+                payment gateway (plans / checkout), instead of opening the old slide-in free-trial panel.
+              </li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <h3>Deep profile page (profile collection)</h3>
+            <p class="lead">
+              This is the “confused student” screen on the left and the short form on the right.
+            </p>
+            <ul class="changes">
+              <li>
+                <span class="tag tag-new">New</span>
+                <strong>Confused student artwork</strong> —
+                A student illustration was added on the left half of the profile page, with thought-bubble
+                questions rising from the student’s mind:
+                “How can I achieve my career goal?”, “What jobs will be in high demand…?”,
+                “What is right for me?”, “Which entrance exam…?”.
+              </li>
+              <li>
+                <span class="tag tag-new">New</span>
+                <strong>Service tiles under the student</strong> —
+                Below the student: “Not sure how to get your dream job or build your dream startup?”
+                plus four image-based tiles — Career Counselling, Test Prep, 21st Century Skills,
+                Industry &amp; Mentor Matching.
+              </li>
+              <li>
+                <span class="tag tag-change">Updated</span>
+                <strong>Fields reduced</strong> —
+                The form keeps only: Full name, Phone number, Email address, and Class.
+                Board, school, city, parent details, and other long fields were removed.
+              </li>
+              <li>
+                <span class="tag tag-new">New</span>
+                <strong>Get OTP → Proceed</strong> —
+                Students tap <strong>Get OTP</strong>, receive a mobile OTP, enter the code, then the
+                button becomes <strong>Proceed</strong>. Correct OTP takes them to the animation page.
+              </li>
+              <li>
+                <span class="tag tag-new">New</span>
+                <strong>Student logo above the form</strong> —
+                A student logo sits above the separator line over the student-details section.
+              </li>
+              <li>
+                <span class="tag tag-change">Updated</span>
+                <strong>Phone field with country code</strong> —
+                Phone input shows a flag + dial code pattern (example number 98345 28374).
+              </li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <h3>Animated career journey (Civil Engineer &amp; related)</h3>
+            <ul class="changes">
+              <li>
+                <span class="tag tag-new">New</span>
+                <strong>Wooden trunks on every milestone</strong> —
+                A wooden trunk marker sits on each milestone platform (Class 9 through post-graduation).
+              </li>
+              <li>
+                <span class="tag tag-new">New</span>
+                <strong>“Begin your journey” button</strong> —
+                Fixed near the bottom centre of the animation page. This is the exit into payment.
+              </li>
+              <li>
+                <span class="tag tag-remove">Removed</span>
+                <strong>Slide-in free-trial side panel</strong> —
+                Clicking a milestone no longer opens the right-hand panel with Free Trial.
+              </li>
+              <li>
+                <span class="tag tag-new">New</span>
+                <strong>Hover thought-bubble popups</strong> —
+                Hovering a milestone shows a cloud-shaped thought bubble with milestone-related info.
+              </li>
+              <li>
+                <span class="tag tag-change">Updated</span>
+                <strong>Character movement</strong> —
+                The student character moves with arrow keys between milestones and shows the thought bubble
+                when arriving at a milestone.
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- WEDNESDAY -->
+        <section class="day" id="wednesday">
+          <div class="day-header">
+            <span class="day-badge">Day 3</span>
+            <h2>Wednesday, 5 August 2026</h2>
+          </div>
+
+          <div class="section">
+            <h3>Deep profile</h3>
+            <ul class="changes">
+              <li>
+                <span class="tag tag-new">New</span>
+                <strong>Resend OTP with 30-second timer</strong> —
+                After Get OTP, Resend stays inactive while a 30s timer runs; then Resend activates.
+                Clicking Resend restarts the cooldown.
+              </li>
+              <li>
+                <span class="tag tag-new">New</span>
+                <strong>Country code dropdown</strong> —
+                The flag / +91 control is a full country dropdown (India listed first), not a static badge.
+              </li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <h3>Animation page — controls</h3>
+            <ul class="changes">
+              <li>
+                <span class="tag tag-new">New</span>
+                <strong>On-screen D / reverse-D arrow buttons</strong> —
+                Previous / next controls sit together under “Begin your journey”, matching keyboard arrows.
+              </li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <h3>After payment — View Journey</h3>
+            <ul class="changes">
+              <li>
+                <span class="tag tag-change">Updated</span>
+                <strong>View Journey opens a fresh class-based path</strong> —
+                After payment success, students see a fresh journey starting from the class they entered
+                on the profile page, for the career they searched.
+              </li>
+              <li>
+                <span class="tag tag-new">New</span>
+                <strong>U-shaped class strips with trunks &amp; services</strong> —
+                Each class is a strip with a trunk at alternating ends (right, left, right…).
+                Strips connect in a continuous path (Class 10 → 11 → 12 → graduation).
+                Each strip shows the services that unlock that milestone.
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- HIGHLIGHTS -->
+        <section class="summary" id="highlights">
+          <h2>At-a-glance highlights</h2>
+          <ol>
+            <li>
+              <strong>Homepage:</strong> multi-professional banner added.
+            </li>
+            <li>
+              <strong>Redirect:</strong> Homepage → Journey changed to Homepage → Deep profile → Animation → Payment → Class journey.
+            </li>
+            <li>
+              <strong>Profile page:</strong> confused-student art + thought bubbles; form cut down to name, phone, email, class; mobile OTP gate.
+            </li>
+            <li>
+              <strong>Animation:</strong> trunks on milestones, Begin your journey, thought-bubble popups, arrow navigation; free-trial side panel gone.
+            </li>
+            <li>
+              <strong>Payment:</strong> three fixed plans, branded method tiles, UPI QR timer + success popup, card OTP and net-banking screens.
+            </li>
+            <li>
+              <strong>Post-pay journey:</strong> fresh U-path of class strips with services, starting from the student’s profile class and searched career.
+            </li>
+          </ol>
+        </section>
+      </div>
+
+      <footer class="doc-footer">
+        <div>
+          <strong>Maple AI Technologies</strong><br />
+          Product updates for Merrakii+ · Prepared for Munjal Universal Consultancy / Merrakii
+        </div>
+        <div>
+          Contact: tarunrastogi@mapleaitechnologies.com<br />
+          mapleaitechnologies.com · +91 96190 60302
+        </div>
+      </footer>
+    </article>
+  </div>
+</body>
+</html>

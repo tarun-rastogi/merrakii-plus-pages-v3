@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Climb · Graph Grid</title>
+  <style>
+    /*
+      Graph paper with labeled X/Y axes (Cartesian):
+      origin (0,0) = bottom-left of the drawing area
+      X increases right · Y increases up
+      Cell = 10px · major tick / label every 50px
+    */
+    :root {
+      --cell: 10px;
+      --major: 50px;
+      --gutter: 44px;
+      --line: rgba(60, 90, 140, 0.22);
+      --line-major: rgba(60, 90, 140, 0.45);
+      --axis: #1a2a44;
+      --label: #334155;
+      --bg: #ffffff;
+      --gutter-bg: #ffffff;
+      --ms: #FF007F;
+      --ms-active: #FF007F;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      font-family: "IBM Plex Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+      color: var(--label);
+      user-select: none;
+    }
+
+    .frame {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: var(--gutter) 1fr;
+      grid-template-rows: 1fr var(--gutter);
+    }
+
+    .y-axis {
+      grid-column: 1;
+      grid-row: 1;
+      position: relative;
+      background: var(--gutter-bg);
+      border-right: 1px solid var(--axis);
+      overflow: hidden;
+    }
+
+    .plot {
+      grid-column: 2;
+      grid-row: 1;
+      position: relative;
+      overflow: hidden;
+      cursor: crosshair;
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(to right, var(--line-major) 1px, transparent 1px),
+        linear-gradient(to top, var(--line-major) 1px, transparent 1px),
+        linear-gradient(to right, var(--line) 1px, transparent 1px),
+        linear-gradient(to top, var(--line) 1px, transparent 1px);
+      background-size:
+        var(--major) var(--major),
+        var(--major) var(--major),
+        var(--cell) var(--cell),
+        var(--cell) var(--cell);
+      background-position: left bottom;
+    }
+
+    .plot.plot--grid-off {
+      background-image: none;
+    }
+
+    .grid-toggle {
+      position: absolute;
+      right: 10px;
+      bottom: calc(var(--gutter) + 10px);
+      z-index: 30;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 7px;
+      border: 1px solid rgba(26, 42, 68, 0.18);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+      color: #334155;
+      font-size: 10px;
+      font-weight: 600;
+      font-family: inherit;
+      line-height: 1.2;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .grid-toggle__switch {
+      position: relative;
+      width: 18px;
+      height: 10px;
+      border-radius: 999px;
+      background: #94a3b8;
+      flex-shrink: 0;
+      transition: background 0.15s ease;
+    }
+
+    .grid-toggle__switch::after {
+      content: "";
+      position: absolute;
+      top: 1px;
+      left: 1px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.15s ease;
+    }
+
+    .grid-toggle[aria-pressed="true"] .grid-toggle__switch {
+      background: #1f5c3a;
+    }
+
+    .grid-toggle[aria-pressed="true"] .grid-toggle__switch::after {
+      transform: translateX(8px);
+    }
+
+    .corner {
+      grid-column: 1;
+      grid-row: 2;
+      background: var(--gutter-bg);
+      border-right: 1px solid var(--axis);
+      border-top: 1px solid var(--axis);
+      display: grid;
+      place-items: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--axis);
+      letter-spacing: 0.02em;
+    }
+
+    .x-axis {
+      grid-column: 2;
+      grid-row: 2;
+      position: relative;
+      background: var(--gutter-bg);
+      border-top: 1px solid var(--axis);
+      overflow: hidden;
+    }
+
+    .tick {
+      position: absolute;
+      font-size: 10px;
+      line-height: 1;
+      color: var(--label);
+      pointer-events: none;
+    }
+
+    .x-axis .tick {
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .x-axis .tick::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: -14px;
+      width: 1px;
+      height: 8px;
+      background: var(--axis);
+      transform: translateX(-50%);
+    }
+
+    .y-axis .tick {
+      left: 50%;
+      transform: translate(-50%, 50%);
+    }
+
+    .y-axis .tick::after {
+      content: "";
+      position: absolute;
+      bottom: 50%;
+      right: -14px;
+      width: 8px;
+      height: 1px;
+      background: var(--axis);
+      transform: translateY(50%);
+    }
+
+    .axis-title {
+      position: absolute;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--axis);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .x-axis .axis-title {
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .y-axis .axis-title {
+      left: 50%;
+      top: 10px;
+      transform: translateX(-50%) rotate(-90deg);
+      transform-origin: center;
+      white-space: nowrap;
+    }
+
+    .crosshair-x,
+    .crosshair-y {
+      position: absolute;
+      pointer-events: none;
+      z-index: 2;
+      display: none;
+    }
+
+    .crosshair-x {
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(220, 38, 38, 0.65);
+    }
+
+    .crosshair-y {
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(220, 38, 38, 0.65);
+    }
+
+    .readout {
+      position: absolute;
+      z-index: 3;
+      left: 12px;
+      bottom: 12px;
+      padding: 8px 12px;
+      background: rgba(26, 42, 68, 0.92);
+      color: #f8fafc;
+      border-radius: 6px;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+      pointer-events: none;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+      display: none;
+    }
+
+    .readout strong {
+      color: #93c5fd;
+      font-weight: 700;
+    }
+
+    .hud {
+      position: absolute;
+      z-index: 4;
+      left: 12px;
+      top: 12px;
+      max-width: min(420px, 70%);
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(31, 92, 58, 0.2);
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #1c2a22;
+      pointer-events: auto;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+    }
+
+    .hud a {
+      color: #1f5c3a;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .hud .title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .hud .sub {
+      color: #5a6b60;
+      margin-bottom: 6px;
+    }
+
+    .hud .err {
+      color: #b91c1c;
+      font-weight: 600;
+    }
+
+    .hud__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 8px 0 6px;
+    }
+
+    .fees-btn {
+      border: 1px solid rgba(31, 92, 58, 0.28);
+      background: #fff;
+      color: #1f5c3a;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      line-height: 1.2;
+    }
+
+    .fees-btn.is-active {
+      background: #1f5c3a;
+      color: #fff;
+      border-color: #1f5c3a;
+    }
+
+    .fees-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .view-btn {
+      border: 1px solid rgba(31, 92, 58, 0.28);
+      background: #fff;
+      color: #1f5c3a;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      line-height: 1.2;
+    }
+
+    .milestone-select-wrap {
+      display: none;
+      width: 100%;
+      margin: 0 0 6px;
+    }
+
+    .milestone-select-wrap.is-open {
+      display: block;
+    }
+
+    .milestone-select {
+      width: 100%;
+      border: 1px solid rgba(31, 92, 58, 0.28);
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 12px;
+      font-family: inherit;
+      color: #1c2a22;
+      background: #fff;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .fees-legend {
+      display: none;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(31, 92, 58, 0.14);
+      max-height: 180px;
+      overflow: auto;
+    }
+
+    .fees-legend.is-open {
+      display: block;
+    }
+
+    .fees-legend__title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #2f7a4d;
+      margin-bottom: 6px;
+    }
+
+    .fees-legend__list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .fees-legend__item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #1c2a22;
+      line-height: 1.3;
+    }
+
+    .fees-legend__swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      border: 1px solid rgba(15, 23, 42, 0.18);
+      flex-shrink: 0;
+    }
+
+    .drawn-line .journey-line.is-hidden {
+      opacity: 0;
+    }
+
+    .drawn-line .fees-segment {
+      stroke-width: 3.5;
+      stroke-linecap: round;
+      fill: none;
+    }
+
+    .drawn-line {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .drawn-line .journey-line {
+      stroke: #dc2626;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+    }
+
+    .drawn-line .endpoint-dot {
+      fill: #dc2626;
+      stroke: #fff;
+      stroke-width: 1.5;
+    }
+
+    .drawn-line .ms-dot {
+      fill: var(--ms);
+      stroke: #fff;
+      stroke-width: 2;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    .drawn-line .ms-dot.is-active {
+      fill: var(--ms-active);
+    }
+
+    .drawn-line .ms-label {
+      fill: #FF007F;
+      font-size: 16.5px;
+      font-weight: 700;
+      font-family: "IBM Plex Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+      paint-order: stroke;
+      stroke: rgba(255, 255, 255, 0.92);
+      stroke-width: 3px;
+      pointer-events: none;
+    }
+
+    .drawn-line .leader-ms {
+      stroke: rgba(255, 0, 127, 0.7);
+      stroke-width: 1.25;
+      pointer-events: none;
+    }
+
+    .drawn-line .leader-blk {
+      stroke: rgba(0, 0, 255, 0.45);
+      stroke-width: 1;
+      pointer-events: none;
+    }
+
+    .drawn-line .leader-terminal-flag {
+      stroke: #EA580C;
+      stroke-width: 1.5;
+      pointer-events: none;
+    }
+
+    .drawn-line .leader-goal-callout {
+      stroke: rgba(28, 35, 64, 0.75);
+      stroke-width: 1.5;
+      pointer-events: none;
+    }
+
+    .drawn-line .terminal-flag {
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    .drawn-line .terminal-flag__pole {
+      stroke: #EA580C;
+      stroke-width: 2;
+      stroke-linecap: round;
+    }
+
+    .drawn-line .terminal-flag__cloth {
+      fill: #EA580C;
+      stroke: #C2410C;
+      stroke-width: 1;
+    }
+
+    .drawn-line .terminal-flag__text {
+      fill: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: "IBM Plex Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+      pointer-events: none;
+    }
+
+    .drawn-line .goal-callout-label {
+      fill: #1C2340;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: "IBM Plex Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+      paint-order: stroke;
+      stroke: rgba(255, 255, 255, 0.95);
+      stroke-width: 3px;
+      pointer-events: none;
+    }
+
+    /* Smaller block checkpoints — subordinate to milestones */
+    .drawn-line .blk-dot {
+      fill: #0000FF;
+      stroke: #fff;
+      stroke-width: 1.5;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    .drawn-line .blk-dot.is-active {
+      fill: #0000FF;
+    }
+
+    .drawn-line .blk-label {
+      fill: #0000FF;
+      font-size: 13.5px;
+      font-weight: 700;
+      font-family: "IBM Plex Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+      paint-order: stroke;
+      stroke: rgba(255, 255, 255, 0.95);
+      stroke-width: 2.5px;
+      pointer-events: none;
+    }
+
+    .req-popover {
+      position: absolute;
+      z-index: 20;
+      display: none;
+      width: min(280px, 42%);
+      max-height: 42%;
+      overflow: auto;
+      padding: 10px 12px;
+      background: rgba(255, 252, 246, 0.97);
+      border: 1px solid rgba(31, 92, 58, 0.18);
+      border-radius: 10px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.18);
+      color: #1c2a22;
+      font-size: 12px;
+      line-height: 1.4;
+      pointer-events: auto;
+      transform: translate(-50%, -110%);
+    }
+
+    .req-popover.is-open {
+      display: block;
+    }
+
+    .req-popover__head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .req-popover__eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #2f7a4d;
+    }
+
+    .req-popover__close {
+      border: 1px solid rgba(31, 92, 58, 0.2);
+      background: #fff;
+      border-radius: 999px;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .req-popover__list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .req-popover__req-title {
+      font-weight: 700;
+      margin: 0 0 2px;
+    }
+
+    .req-popover__req-desc {
+      margin: 0;
+      color: #5a6b60;
+      font-size: 11px;
+    }
+
+    .req-popover__cta {
+      display: inline-block;
+      margin-top: 4px;
+      color: #1f5c3a;
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="y-axis" id="y-axis" aria-label="Y axis">
+      <span class="axis-title">Y ↑</span>
+    </div>
+    <div class="plot plot--grid-off" id="plot" aria-label="Coordinate grid">
+      <svg class="drawn-line" id="drawn-line" aria-hidden="false">
+        <line class="journey-line" id="ratio-line" x1="0" y1="0" x2="0" y2="0" />
+        <g id="fees-segment-layer"></g>
+        <g id="leader-layer"></g>
+        <g id="block-layer"></g>
+        <g id="milestone-layer"></g>
+        <circle class="endpoint-dot" id="ratio-start" r="5" cx="0" cy="0" />
+        <circle class="endpoint-dot" id="ratio-end" r="5" cx="0" cy="0" />
+      </svg>
+      <div class="crosshair-x" id="cx"></div>
+      <div class="crosshair-y" id="cy"></div>
+      <div class="readout" id="readout"><strong>x</strong>=0 · <strong>y</strong>=0</div>
+      <div class="req-popover" id="req-popover" role="dialog" aria-label="Block requirements">
+        <div class="req-popover__head">
+          <div class="req-popover__eyebrow" id="req-popover-title">Block</div>
+          <button type="button" class="req-popover__close" id="req-popover-close" aria-label="Close">×</button>
+        </div>
+        <ul class="req-popover__list" id="req-popover-list"></ul>
+      </div>
+      <div class="hud" id="hud">
+        <div class="title" id="hud-title">Your Climb</div>
+        <div class="sub" id="hud-sub">Resolving goal and grade…</div>
+        <div class="hud__actions">
+          <button type="button" class="view-btn" id="view-toggle">View Timeline</button>
+          <button type="button" class="fees-btn" id="fees-btn" disabled aria-pressed="false">
+            Fees
+          </button>
+        </div>
+        <div class="milestone-select-wrap" id="milestone-select-wrap">
+          <label class="sr-only" for="milestone-select">Select Milestone</label>
+          <select id="milestone-select" class="milestone-select" aria-label="Select Milestone">
+            <option value="">Select Milestone</option>
+          </select>
+        </div>
+        <div class="fees-legend" id="fees-legend" aria-live="polite">
+          <div class="fees-legend__title">Fees by milestone segment</div>
+          <ul class="fees-legend__list" id="fees-legend-list"></ul>
+        </div>
+        <a id="hud-home" href="/">← Home</a>
+      </div>
+    </div>
+    <div class="corner" title="Origin">0,0</div>
+    <div class="x-axis" id="x-axis" aria-label="X axis">
+      <span class="axis-title">X →</span>
+    </div>
+    <button
+      type="button"
+      class="grid-toggle"
+      id="grid-toggle"
+      aria-pressed="false"
+      title="Toggle grid lines"
+    >
+      <span class="grid-toggle__switch" aria-hidden="true"></span>
+      Grid
+    </button>
+  </div>
+
+  <script>
+    (function () {
+      const MAJOR = 50;
+
+      /*
+        Fixed Stage-1 journey line as ratios of the plot (bottom-left origin).
+        Matches: start (7.95%, 15.70%) → end (91.45%, 82.42%).
+      */
+      const START_RX = 0.0795;
+      const START_RY = 0.1570;
+      const END_RX = 0.9145;
+      const END_RY = 0.8242;
+
+      /** Canonical Fees identifier — never match on display name alone. */
+      const FEES_BLOCK_CODE = "FEES";
+
+      /** Deterministic Fees segment palette (cycles if segments > length). */
+      const FEES_SEGMENT_COLORS = [
+        "#E11D48",
+        "#EA580C",
+        "#CA8A04",
+        "#16A34A",
+        "#0891B2",
+        "#2563EB",
+        "#7C3AED",
+        "#DB2777",
+        "#0F766E",
+        "#B45309",
+      ];
+
+      const params = new URLSearchParams(window.location.search);
+      const goalId = params.get("goalId");
+      const goalLabel = params.get("goal") || "";
+      const API_BASE = (params.get("api") || "http://localhost:4007").replace(/\/$/, "");
+
+      const plot = document.getElementById("plot");
+      const xAxis = document.getElementById("x-axis");
+      const yAxis = document.getElementById("y-axis");
+      const cx = document.getElementById("cx");
+      const cy = document.getElementById("cy");
+      const readout = document.getElementById("readout");
+      const svg = document.getElementById("drawn-line");
+      const lineEl = document.getElementById("ratio-line");
+      const feesSegmentLayer = document.getElementById("fees-segment-layer");
+      const startDot = document.getElementById("ratio-start");
+      const endDot = document.getElementById("ratio-end");
+      const msLayer = document.getElementById("milestone-layer");
+      const blockLayer = document.getElementById("block-layer");
+      const leaderLayer = document.getElementById("leader-layer");
+      const hudTitle = document.getElementById("hud-title");
+      const hudSub = document.getElementById("hud-sub");
+      const feesBtn = document.getElementById("fees-btn");
+      const viewToggle = document.getElementById("view-toggle");
+      const milestoneSelectWrap = document.getElementById("milestone-select-wrap");
+      const milestoneSelect = document.getElementById("milestone-select");
+      const feesLegend = document.getElementById("fees-legend");
+      const feesLegendList = document.getElementById("fees-legend-list");
+      const reqPopover = document.getElementById("req-popover");
+      const reqPopoverTitle = document.getElementById("req-popover-title");
+      const reqPopoverList = document.getElementById("req-popover-list");
+      const reqPopoverClose = document.getElementById("req-popover-close");
+
+      /**
+       * @typedef {{id:number,name:string,code:string,displayOrder:number,requirements:Array<{id:number,name:string,description:string|null}>,sourceMilestoneId?:number,sourceMilestoneName?:string,goalMilestoneId?:number}} BlockItem
+       * @typedef {{id:number,goalMilestoneId:number,name:string,sequence:number,blocks:BlockItem[]}} MilestoneItem
+       */
+      /** Full goal → milestone → block graph (one API load). */
+      /** @type {MilestoneItem[]} */
+      let journeyMilestones = [];
+      /** Deduped non-Fees blocks in journey order (block view). */
+      /** @type {BlockItem[]} */
+      let journeyBlocks = [];
+      /** @type {"blocks"|"timeline"} */
+      let currentView = "blocks";
+      /** @type {number|null} */
+      let selectedMilestoneId = null;
+      /** @deprecated alias kept for Fees helpers — same as journeyMilestones */
+      let milestones = [];
+      let activeMilestoneId = null;
+      let activeBlockId = null;
+      let journeyMeta = null;
+      let loadError = null;
+      let feesMode = false;
+      /** @type {{svgX:number,svgY:number}|null} */
+      let popoverAnchor = null;
+
+      function isFeesBlock(block) {
+        return !!(block && String(block.code || "").toUpperCase() === FEES_BLOCK_CODE);
+      }
+
+      function normalBlocks(blocks) {
+        return (blocks || []).filter(function (b) {
+          return !isFeesBlock(b);
+        });
+      }
+
+      /**
+       * Unique blocks for the goal, ordered by first milestone occurrence
+       * then that milestone's displayOrder. Fees excluded.
+       * Keeps first-occurrence milestone context for requirement popovers.
+       */
+      function buildUniqueJourneyBlocks(msList) {
+        const seen = Object.create(null);
+        const out = [];
+        (msList || []).forEach(function (ms) {
+          normalBlocks(ms.blocks)
+            .slice()
+            .sort(function (a, b) {
+              return (a.displayOrder || 0) - (b.displayOrder || 0);
+            })
+            .forEach(function (block) {
+              if (seen[block.id]) return;
+              seen[block.id] = true;
+              out.push({
+                id: block.id,
+                name: block.name,
+                code: block.code,
+                displayOrder: block.displayOrder,
+                requirements: block.requirements || [],
+                sourceMilestoneId: ms.id,
+                sourceMilestoneName: ms.name,
+                goalMilestoneId: ms.goalMilestoneId,
+              });
+            });
+        });
+        return out;
+      }
+
+      function journeyHasFees() {
+        return journeyMilestones.some(function (ms) {
+          return (ms.blocks || []).some(isFeesBlock);
+        });
+      }
+
+      function feesSegmentColor(index) {
+        return FEES_SEGMENT_COLORS[index % FEES_SEGMENT_COLORS.length];
+      }
+
+      function updateFeesControls() {
+        const available = journeyHasFees() && journeyMilestones.length >= 2 && !loadError;
+        feesBtn.disabled = !available;
+        feesBtn.classList.toggle("is-active", feesMode && available);
+        feesBtn.setAttribute("aria-pressed", feesMode && available ? "true" : "false");
+        if (!available) {
+          feesMode = false;
+          feesLegend.classList.remove("is-open");
+          feesLegendList.innerHTML = "";
+        }
+      }
+
+      function updateViewControls() {
+        const isTimeline = currentView === "timeline";
+        viewToggle.textContent = isTimeline ? "View Requirements" : "View Timeline";
+        milestoneSelectWrap.classList.toggle("is-open", isTimeline);
+        if (!isTimeline) {
+          selectedMilestoneId = null;
+          milestoneSelect.value = "";
+        }
+      }
+
+      function populateMilestoneSelect() {
+        const previous = milestoneSelect.value;
+        milestoneSelect.innerHTML = "";
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "Select Milestone";
+        milestoneSelect.appendChild(placeholder);
+        journeyMilestones.forEach(function (ms) {
+          const opt = document.createElement("option");
+          opt.value = String(ms.id);
+          opt.textContent = ms.name;
+          milestoneSelect.appendChild(opt);
+        });
+        if (previous && journeyMilestones.some(function (m) { return String(m.id) === previous; })) {
+          milestoneSelect.value = previous;
+          selectedMilestoneId = Number(previous);
+        }
+      }
+
+      function clearTicks(el) {
+        el.querySelectorAll(".tick").forEach((n) => n.remove());
+      }
+
+      function appendLeader(x1, y1, x2, y2, className) {
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("class", className);
+        line.setAttribute("x1", String(x1));
+        line.setAttribute("y1", String(y1));
+        line.setAttribute("x2", String(x2));
+        line.setAttribute("y2", String(y2));
+        leaderLayer.appendChild(line);
+      }
+
+      function renderAxes() {
+        const w = plot.clientWidth;
+        const h = plot.clientHeight;
+        clearTicks(xAxis);
+        clearTicks(yAxis);
+
+        for (let x = 0; x <= w; x += MAJOR) {
+          const tick = document.createElement("span");
+          tick.className = "tick";
+          tick.textContent = String(x);
+          tick.style.left = x + "px";
+          xAxis.appendChild(tick);
+        }
+
+        for (let y = 0; y <= h; y += MAJOR) {
+          const tick = document.createElement("span");
+          tick.className = "tick";
+          tick.textContent = String(y);
+          tick.style.bottom = y + "px";
+          yAxis.appendChild(tick);
+        }
+      }
+
+      /**
+       * Equally spaced points along the journey line.
+       * Optional inset (0–0.45) pulls first/last nodes slightly inward so
+       * edge labels stay on-screen (used by the block-requirements view).
+       */
+      function pointsAlongLine(n, w, h, inset) {
+        if (n <= 0) return [];
+        const edge = Math.max(0, Math.min(inset || 0, 0.45));
+        const pts = [];
+        for (let i = 0; i < n; i++) {
+          const rawT = n === 1 ? 0.5 : i / (n - 1);
+          const t = edge + rawT * (1 - 2 * edge);
+          const xCart = (START_RX + t * (END_RX - START_RX)) * w;
+          const yCart = (START_RY + t * (END_RY - START_RY)) * h;
+          pts.push({
+            xCart: xCart,
+            yCart: yCart,
+            svgX: xCart,
+            svgY: h - yCart,
+            xPct: (START_RX + t * (END_RX - START_RX)) * 100,
+            yPctBottom: (START_RY + t * (END_RY - START_RY)) * 100,
+          });
+        }
+        return pts;
+      }
+
+      /** Milestone spacing — full line, no inset (geometry unchanged). */
+      function milestonePoints(n, w, h) {
+        return pointsAlongLine(n, w, h, 0);
+      }
+
+      /**
+       * Line endpoints in SVG space for the current plot size.
+       */
+      function lineEndpoints(w, h) {
+        const x1 = START_RX * w;
+        const y1Cartesian = START_RY * h;
+        const x2 = END_RX * w;
+        const y2Cartesian = END_RY * h;
+        return {
+          start: { xCart: x1, yCart: y1Cartesian, svgX: x1, svgY: h - y1Cartesian },
+          end: { xCart: x2, yCart: y2Cartesian, svgX: x2, svgY: h - y2Cartesian },
+        };
+      }
+
+      /**
+       * Blocks for milestone i occupy the open segment to milestone i+1.
+       * t = (j + 1) / (N + 1) — never on the milestone endpoints.
+       * Final milestone blocks are drawn from that milestone circle (see drawJourney).
+       */
+      function blockPointsBetween(ms1, ms2, blockCount) {
+        if (!ms1 || !ms2 || blockCount <= 0) return [];
+        const pts = [];
+        for (let j = 0; j < blockCount; j++) {
+          const t = (j + 1) / (blockCount + 1);
+          const xCart = ms1.xCart + t * (ms2.xCart - ms1.xCart);
+          const yCart = ms1.yCart + t * (ms2.yCart - ms1.yCart);
+          pts.push({
+            xCart: xCart,
+            yCart: yCart,
+            svgX: xCart,
+            svgY: ms1.svgY + t * (ms2.svgY - ms1.svgY),
+          });
+        }
+        return pts;
+      }
+
+      /** Draw one normal-block checkpoint + parallel leader + label (kept on-screen). */
+      function appendBlockVisual(block, milestoneName, bp, leaderFrom, j, nX, nY, plotW, plotH) {
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("class", "blk-dot" + (activeBlockId === block.id ? " is-active" : ""));
+        circle.setAttribute("r", "5");
+        circle.setAttribute("cx", String(bp.svgX));
+        circle.setAttribute("cy", String(bp.svgY));
+        circle.setAttribute("data-block-id", String(block.id));
+        circle.addEventListener("click", function (ev) {
+          ev.stopPropagation();
+          openBlockPopover(block, milestoneName, bp);
+        });
+        blockLayer.appendChild(circle);
+
+        const blkDist = 28 + j * 24;
+        const placed = placeLeaderLabel(
+          leaderFrom.svgX,
+          leaderFrom.svgY,
+          nX,
+          nY,
+          blkDist,
+          plotW != null ? plotW : plot.clientWidth,
+          plotH != null ? plotH : plot.clientHeight,
+        );
+
+        appendLeader(leaderFrom.svgX, leaderFrom.svgY, placed.x, placed.y, "leader-blk");
+
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("class", "blk-label");
+        text.setAttribute("x", String(placed.x));
+        text.setAttribute("y", String(placed.y));
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("dominant-baseline", "middle");
+        text.textContent = block.name;
+        blockLayer.appendChild(text);
+      }
+
+      /**
+       * Prefer the default block-side offset (-n). If that lands off-canvas
+       * (common for the last block at top-right), flip to +n, then clamp.
+       */
+      function placeLeaderLabel(fromX, fromY, nX, nY, dist, w, h) {
+        const padX = 36;
+        const padY = 28;
+        function inBounds(x, y) {
+          return x >= padX && x <= w - padX && y >= padY && y <= h - padY;
+        }
+        let x = fromX - nX * dist;
+        let y = fromY - nY * dist;
+        if (!inBounds(x, y)) {
+          x = fromX + nX * dist;
+          y = fromY + nY * dist;
+        }
+        if (!inBounds(x, y)) {
+          // Shorter pull toward the safer side of the plot.
+          const short = Math.max(18, dist * 0.55);
+          x = fromX - nX * short;
+          y = fromY - nY * short;
+          if (!inBounds(x, y)) {
+            x = fromX + nX * short;
+            y = fromY + nY * short;
+          }
+        }
+        return {
+          x: Math.min(Math.max(x, padX), w - padX),
+          y: Math.min(Math.max(y, padY), h - padY),
+        };
+      }
+
+      /**
+       * Orange flag for a last-milestone block — no extra checkpoint circle.
+       * Flag points along (dirX, dirY) away from the milestone.
+       */
+      function appendTerminalFlag(block, milestoneName, tipX, tipY, dirX, dirY, anchor) {
+        const len = Math.hypot(dirX, dirY) || 1;
+        const ux = dirX / len;
+        const uy = dirY / len;
+        // Perpendicular for flag cloth height.
+        const px = -uy;
+        const py = ux;
+
+        const poleLen = 22;
+        const clothW = Math.max(52, Math.min(90, 10 + String(block.name || "").length * 7));
+        const clothH = 16;
+        const poleEndX = tipX + ux * poleLen;
+        const poleEndY = tipY + uy * poleLen;
+
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("class", "terminal-flag");
+        g.setAttribute("data-block-id", String(block.id));
+        g.addEventListener("click", function (ev) {
+          ev.stopPropagation();
+          openBlockPopover(block, milestoneName, anchor);
+        });
+
+        const pole = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        pole.setAttribute("class", "terminal-flag__pole");
+        pole.setAttribute("x1", String(tipX));
+        pole.setAttribute("y1", String(tipY));
+        pole.setAttribute("x2", String(poleEndX));
+        pole.setAttribute("y2", String(poleEndY));
+        g.appendChild(pole);
+
+        // Rectangular flag cloth attached to the pole top.
+        const c0x = tipX;
+        const c0y = tipY;
+        const c1x = tipX + ux * clothW;
+        const c1y = tipY + uy * clothW;
+        const c2x = tipX + ux * clothW + px * clothH;
+        const c2y = tipY + uy * clothW + py * clothH;
+        const c3x = tipX + px * clothH;
+        const c3y = tipY + py * clothH;
+        const cloth = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        cloth.setAttribute("class", "terminal-flag__cloth");
+        cloth.setAttribute(
+          "d",
+          "M " + c0x + " " + c0y +
+            " L " + c1x + " " + c1y +
+            " L " + c2x + " " + c2y +
+            " L " + c3x + " " + c3y +
+            " Z",
+        );
+        g.appendChild(cloth);
+
+        const tx = tipX + ux * (clothW * 0.5) + px * (clothH * 0.5);
+        const ty = tipY + uy * (clothW * 0.5) + py * (clothH * 0.5);
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("class", "terminal-flag__text");
+        text.setAttribute("x", String(tx));
+        text.setAttribute("y", String(ty));
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("dominant-baseline", "middle");
+        text.textContent = block.name;
+        g.appendChild(text);
+
+        blockLayer.appendChild(g);
+      }
+
+      function closePopover() {
+        activeBlockId = null;
+        popoverAnchor = null;
+        reqPopover.classList.remove("is-open");
+        reqPopoverList.innerHTML = "";
+      }
+
+      function openBlockPopover(block, milestoneName, anchor) {
+        activeBlockId = block.id;
+        popoverAnchor = anchor;
+        reqPopoverTitle.textContent = milestoneName + " · " + block.name;
+        reqPopoverList.innerHTML = "";
+        const reqs = block.requirements || [];
+        if (!reqs.length) {
+          const li = document.createElement("li");
+          li.textContent = "No requirements configured for this block.";
+          reqPopoverList.appendChild(li);
+        } else {
+          reqs.forEach(function (req) {
+            const li = document.createElement("li");
+            const title = document.createElement("p");
+            title.className = "req-popover__req-title";
+            title.textContent = req.name;
+            li.appendChild(title);
+            if (req.description) {
+              const desc = document.createElement("p");
+              desc.className = "req-popover__req-desc";
+              desc.textContent = req.description;
+              li.appendChild(desc);
+            }
+            const cta = document.createElement("a");
+            cta.className = "req-popover__cta";
+            cta.href = "/dashboard?tab=requirement&requirementId=" + encodeURIComponent(String(req.id));
+            cta.textContent = "Know More";
+            li.appendChild(cta);
+            reqPopoverList.appendChild(li);
+          });
+        }
+        reqPopover.classList.add("is-open");
+        positionPopover();
+        drawJourney();
+      }
+
+      function positionPopover() {
+        if (!popoverAnchor || !reqPopover.classList.contains("is-open")) return;
+        const left = Math.min(Math.max(popoverAnchor.svgX, 80), plot.clientWidth - 80);
+        const top = Math.min(Math.max(popoverAnchor.svgY, 40), plot.clientHeight - 40);
+        reqPopover.style.left = left + "px";
+        reqPopover.style.top = top + "px";
+      }
+
+      function drawJourney() {
+        const w = plot.clientWidth;
+        const h = plot.clientHeight;
+
+        const x1 = START_RX * w;
+        const y1Cartesian = START_RY * h;
+        const x2 = END_RX * w;
+        const y2Cartesian = END_RY * h;
+
+        const svgY1 = h - y1Cartesian;
+        const svgY2 = h - y2Cartesian;
+
+        svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+        svg.setAttribute("width", String(w));
+        svg.setAttribute("height", String(h));
+
+        lineEl.setAttribute("x1", x1);
+        lineEl.setAttribute("y1", svgY1);
+        lineEl.setAttribute("x2", x2);
+        lineEl.setAttribute("y2", svgY2);
+
+        startDot.setAttribute("cx", x1);
+        startDot.setAttribute("cy", svgY1);
+        endDot.setAttribute("cx", x2);
+        endDot.setAttribute("cy", svgY2);
+
+        const lineDx = x2 - x1;
+        const lineDy = svgY2 - svgY1;
+        const lineLen = Math.hypot(lineDx, lineDy) || 1;
+        const nX = -lineDy / lineLen;
+        const nY = lineDx / lineLen;
+
+        msLayer.innerHTML = "";
+        blockLayer.innerHTML = "";
+        leaderLayer.innerHTML = "";
+        feesSegmentLayer.innerHTML = "";
+
+        // Timeline slice: selected milestone + all subsequent (sequence order).
+        /** @type {MilestoneItem[]} */
+        let timelineMilestones = [];
+        if (currentView === "timeline" && selectedMilestoneId != null) {
+          const startIdx = journeyMilestones.findIndex(function (ms) {
+            return ms.id === selectedMilestoneId;
+          });
+          if (startIdx >= 0) {
+            timelineMilestones = journeyMilestones.slice(startIdx);
+          }
+        }
+
+        // Fees segments follow the milestones currently meaningful for the view.
+        const feesMilestones =
+          currentView === "timeline" && timelineMilestones.length
+            ? timelineMilestones
+            : journeyMilestones;
+        const feesPts = milestonePoints(feesMilestones.length, w, h);
+        const segmentCount = Math.max(feesMilestones.length - 1, 0);
+        const feesActive = feesMode && segmentCount > 0 && journeyHasFees();
+        lineEl.classList.toggle("is-hidden", feesActive);
+
+        if (feesActive) {
+          for (let i = 0; i < segmentCount; i++) {
+            const a = feesPts[i];
+            const b = feesPts[i + 1];
+            if (!a || !b) continue;
+            const seg = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            seg.setAttribute("class", "fees-segment");
+            seg.setAttribute("x1", String(a.svgX));
+            seg.setAttribute("y1", String(a.svgY));
+            seg.setAttribute("x2", String(b.svgX));
+            seg.setAttribute("y2", String(b.svgY));
+            seg.setAttribute("stroke", feesSegmentColor(i));
+            feesSegmentLayer.appendChild(seg);
+          }
+        }
+
+        let plottedBlocks = 0;
+        let hudDetail = "";
+
+        if (currentView === "blocks") {
+          // Default: unique blocks equally spaced; first at start, last at end.
+          const blocks = journeyBlocks;
+          // Soft inset keeps first/last block labels inside the viewport.
+          const bPts = pointsAlongLine(blocks.length, w, h, 0.06);
+          blocks.forEach(function (block, j) {
+            const bp = bPts[j];
+            if (!bp) return;
+            plottedBlocks += 1;
+            appendBlockVisual(block, block.sourceMilestoneName || "Journey", bp, bp, j, nX, nY, w, h);
+          });
+          hudDetail =
+            "Block journey · " + blocks.length + " unique block" + (blocks.length === 1 ? "" : "s");
+        } else if (!timelineMilestones.length) {
+          hudDetail = "Timeline · select a milestone";
+        } else {
+          // Milestone-based journey from selected start → end of goal.
+          // Blocks are per-milestone (NOT globally deduplicated).
+          const pts = milestonePoints(timelineMilestones.length, w, h);
+
+          for (let i = 0; i < timelineMilestones.length - 1; i++) {
+            const ms = timelineMilestones[i];
+            const blocks = normalBlocks(ms.blocks)
+              .slice()
+              .sort(function (a, b) {
+                return (a.displayOrder || 0) - (b.displayOrder || 0);
+              });
+            const bPts = blockPointsBetween(pts[i], pts[i + 1], blocks.length);
+            blocks.forEach(function (block, j) {
+              const bp = bPts[j];
+              if (!bp) return;
+              plottedBlocks += 1;
+              appendBlockVisual(block, ms.name, bp, bp, j, nX, nY, w, h);
+            });
+          }
+
+          // Final milestone in the slice: flag its normal blocks from the circle.
+          const lastIdx = timelineMilestones.length - 1;
+          const lastMs = timelineMilestones[lastIdx];
+          const lastPt = pts[lastIdx];
+          if (lastMs && lastPt) {
+            const terminalBlocks = normalBlocks(lastMs.blocks)
+              .slice()
+              .sort(function (a, b) {
+                return (a.displayOrder || 0) - (b.displayOrder || 0);
+              });
+            const tX = lineDx / lineLen;
+            const tY = lineDy / lineLen;
+
+            terminalBlocks.forEach(function (block, j) {
+              const flagDist = 52 + j * 36;
+              const tipX = lastPt.svgX - nX * flagDist;
+              const tipY = lastPt.svgY - nY * flagDist;
+              const anchor = { svgX: tipX, svgY: tipY };
+              appendLeader(lastPt.svgX, lastPt.svgY, tipX, tipY, "leader-terminal-flag");
+              appendTerminalFlag(block, lastMs.name, tipX, tipY, -nX, -nY, anchor);
+            });
+
+            const goalNameForCallout =
+              (journeyMeta && journeyMeta.goal && journeyMeta.goal.displayName) ||
+              goalLabel ||
+              "Goal";
+            const goalDist = 58;
+            const goalX = lastPt.svgX + tX * goalDist;
+            const goalY = lastPt.svgY + tY * goalDist;
+            appendLeader(lastPt.svgX, lastPt.svgY, goalX, goalY, "leader-goal-callout");
+            const goalText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            goalText.setAttribute("class", "goal-callout-label");
+            goalText.setAttribute("x", String(goalX + tX * 8));
+            goalText.setAttribute("y", String(goalY + tY * 8));
+            goalText.setAttribute("text-anchor", "middle");
+            goalText.setAttribute("dominant-baseline", "middle");
+            goalText.textContent = goalNameForCallout;
+            blockLayer.appendChild(goalText);
+          }
+
+          timelineMilestones.forEach(function (ms, i) {
+            const p = pts[i];
+            if (!p) return;
+            appendMilestoneMarker(ms, p, i, nX, nY);
+          });
+
+          hudDetail =
+            "Timeline · from " + timelineMilestones[0].name +
+            " · " + timelineMilestones.length + " milestone" +
+            (timelineMilestones.length === 1 ? "" : "s") +
+            " · " + plottedBlocks + " block checkpoint" +
+            (plottedBlocks === 1 ? "" : "s");
+        }
+
+        positionPopover();
+        renderFeesLegend(feesActive, feesMilestones);
+        updateFeesControls();
+        updateViewControls();
+
+        const goalName =
+          (journeyMeta && journeyMeta.goal && journeyMeta.goal.displayName) ||
+          goalLabel ||
+          "Goal";
+
+        if (loadError) {
+          hudTitle.textContent = "Your Climb";
+          hudSub.innerHTML = '<span class="err">' + loadError + "</span>";
+          return;
+        }
+
+        hudTitle.textContent = goalName;
+        hudSub.textContent =
+          hudDetail +
+          " · " + journeyMilestones.length + " total milestone" +
+          (journeyMilestones.length === 1 ? "" : "s") +
+          (feesActive ? " · Fees view on" : "");
+      }
+
+      function appendMilestoneMarker(ms, p, i, nX, nY) {
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("class", "ms-dot" + (activeMilestoneId === ms.id ? " is-active" : ""));
+        circle.setAttribute("r", "8");
+        circle.setAttribute("cx", String(p.svgX));
+        circle.setAttribute("cy", String(p.svgY));
+        circle.setAttribute("data-id", String(ms.id));
+        circle.addEventListener("click", function () {
+          activeMilestoneId = ms.id;
+          closePopover();
+          drawJourney();
+        });
+        msLayer.appendChild(circle);
+
+        const msDist = 42 + (i % 2) * 16;
+        const labelX = p.svgX + nX * msDist;
+        const labelY = p.svgY + nY * msDist;
+        appendLeader(p.svgX, p.svgY, labelX, labelY, "leader-ms");
+
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("class", "ms-label");
+        text.setAttribute("x", String(labelX));
+        text.setAttribute("y", String(labelY));
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("dominant-baseline", "middle");
+        text.textContent = ms.name;
+        msLayer.appendChild(text);
+      }
+
+      function renderFeesLegend(feesActive, feesMsList) {
+        feesLegendList.innerHTML = "";
+        if (!feesActive) {
+          feesLegend.classList.remove("is-open");
+          return;
+        }
+        const list = feesMsList || journeyMilestones;
+        const count = Math.max(list.length - 1, 0);
+        for (let i = 0; i < count; i++) {
+          const fromMs = list[i];
+          const toMs = list[i + 1];
+          if (!fromMs || !toMs) continue;
+          const li = document.createElement("li");
+          li.className = "fees-legend__item";
+          const swatch = document.createElement("span");
+          swatch.className = "fees-legend__swatch";
+          swatch.style.background = feesSegmentColor(i);
+          swatch.setAttribute("aria-hidden", "true");
+          const label = document.createElement("span");
+          label.textContent = "Fees — " + fromMs.name + " → " + toMs.name;
+          li.appendChild(swatch);
+          li.appendChild(label);
+          feesLegendList.appendChild(li);
+        }
+        feesLegend.classList.add("is-open");
+      }
+
+      function renderAll() {
+        renderAxes();
+        drawJourney();
+      }
+
+      function showCoords(e) {
+        const rect = plot.getBoundingClientRect();
+        const width = Math.round(rect.width);
+        const height = Math.round(rect.height);
+        const xFromLeft = e.clientX - rect.left;
+        const yFromTop = e.clientY - rect.top;
+        const x = Math.max(0, Math.min(Math.round(xFromLeft), width));
+        const y = Math.max(0, Math.min(Math.round(height - yFromTop), height));
+
+        cx.style.display = "block";
+        cy.style.display = "block";
+        readout.style.display = "block";
+        cx.style.left = x + "px";
+        cy.style.bottom = y + "px";
+        cy.style.top = "auto";
+        readout.innerHTML = "<strong>x</strong>=" + x + " · <strong>y</strong>=" + y;
+      }
+
+      function hideCoords() {
+        cx.style.display = "none";
+        cy.style.display = "none";
+        readout.style.display = "none";
+      }
+
+      async function loadJourney() {
+        if (!goalId) {
+          loadError = "Missing goalId. Search from the homepage.";
+          renderAll();
+          return;
+        }
+        try {
+          const res = await fetch(
+            API_BASE + "/api/journeys?goalId=" + encodeURIComponent(goalId),
+          );
+          if (!res.ok) {
+            const body = await res.json().catch(function () { return {}; });
+            throw new Error(body.error || ("Journey request failed (" + res.status + ")"));
+          }
+          const data = await res.json();
+          journeyMeta = data;
+          journeyMilestones = (data.journey || []).map(function (step) {
+            const blocks = (step.blocks || [])
+              .slice()
+              .sort(function (a, b) {
+                return (a.displayOrder || 0) - (b.displayOrder || 0);
+              })
+              .map(function (b) {
+                return {
+                  id: b.id,
+                  name: b.name,
+                  code: b.code,
+                  displayOrder: b.displayOrder,
+                  requirements: b.requirements || [],
+                  sourceMilestoneId: step.milestone.id,
+                  sourceMilestoneName: step.milestone.name,
+                  goalMilestoneId: step.milestone.goalMilestoneId,
+                };
+              });
+            return {
+              id: step.milestone.id,
+              goalMilestoneId: step.milestone.goalMilestoneId,
+              name: step.milestone.name,
+              sequence: step.milestone.sequence,
+              blocks: blocks,
+            };
+          });
+          milestones = journeyMilestones;
+          journeyBlocks = buildUniqueJourneyBlocks(journeyMilestones);
+          currentView = "blocks";
+          selectedMilestoneId = null;
+          populateMilestoneSelect();
+          if (!journeyMilestones.length) {
+            loadError = "No milestones configured for this goal.";
+          } else {
+            loadError = null;
+            activeMilestoneId = journeyMilestones[0].id;
+          }
+          feesMode = false;
+        } catch (err) {
+          loadError = err instanceof Error ? err.message : "Failed to load journey";
+          journeyMilestones = [];
+          milestones = [];
+          journeyBlocks = [];
+          feesMode = false;
+        }
+        renderAll();
+      }
+
+      reqPopoverClose.addEventListener("click", function () {
+        closePopover();
+        drawJourney();
+      });
+      feesBtn.addEventListener("click", function () {
+        if (feesBtn.disabled) return;
+        feesMode = !feesMode;
+        drawJourney();
+      });
+      viewToggle.addEventListener("click", function () {
+        if (currentView === "blocks") {
+          currentView = "timeline";
+          selectedMilestoneId = null;
+          milestoneSelect.value = "";
+        } else {
+          currentView = "blocks";
+          selectedMilestoneId = null;
+          milestoneSelect.value = "";
+          feesMode = feesMode; // keep fees overlay state
+        }
+        closePopover();
+        updateViewControls();
+        drawJourney();
+      });
+      milestoneSelect.addEventListener("change", function () {
+        const raw = milestoneSelect.value;
+        selectedMilestoneId = raw ? Number(raw) : null;
+        if (selectedMilestoneId != null) {
+          activeMilestoneId = selectedMilestoneId;
+        }
+        closePopover();
+        drawJourney();
+      });
+      const gridToggle = document.getElementById("grid-toggle");
+      gridToggle.addEventListener("click", function () {
+        const on = gridToggle.getAttribute("aria-pressed") !== "true";
+        gridToggle.setAttribute("aria-pressed", on ? "true" : "false");
+        plot.classList.toggle("plot--grid-off", !on);
+      });
+      plot.addEventListener("click", function (e) {
+        if (e.target === plot) {
+          closePopover();
+          drawJourney();
+        }
+      });
+      plot.addEventListener("mousemove", showCoords);
+      plot.addEventListener("mouseleave", hideCoords);
+      window.addEventListener("resize", renderAll);
+      updateFeesControls();
+      updateViewControls();
+      renderAll();
+      loadJourney();
+    })();
+  </script>
+</body>
+</html>
